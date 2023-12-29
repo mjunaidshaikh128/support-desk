@@ -1,7 +1,19 @@
-import { useState } from "react";
-import {toast} from 'react-toastify'
+import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import { FaUser } from "react-icons/fa";
+import { useSelector, useDispatch } from "react-redux";
+import { register, reset } from "../features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
+
 const Register = () => {
+  
+  const dispatch = useDispatch();
+  const navigate = useNavigate()
+
+  const { user, isSuccess, isError, isLoading, message } = useSelector(
+    (state) => state.auth
+  );
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -11,6 +23,20 @@ const Register = () => {
 
   const { name, email, password, password2 } = formData;
 
+  useEffect(() => {
+    if (isError) {
+        toast.error(message)
+    }
+
+    // Redirect when  logged in
+    if (isSuccess || user) {
+        navigate('/')
+    }
+
+    dispatch(reset())
+
+  }, [isError, isSuccess, user, message, navigate, dispatch])
+  
   const onChange = (e) => {
     setFormData((prevState) => ({
       ...prevState,
@@ -19,19 +45,26 @@ const Register = () => {
   };
 
   const onSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (password !== password2) {
-        toast.error('Passwords do not match')
+      toast.error("Passwords do not match");
+    } else {
+        const userData = {
+            name,
+            email,
+            password
+        }
+
+        dispatch(register(userData))
     }
-    
-  }
+  };
 
   return (
     <>
       <section className="heading">
         <h1>
-          <FaUser />
+          <FaUser /> Register
         </h1>
         <p>Please create an account</p>
       </section>
@@ -85,7 +118,9 @@ const Register = () => {
               required
             />
           </div>
-          <div className="form-group"><button className="btn btn-block">Register</button></div>
+          <div className="form-group">
+            <button className="btn btn-block">Register</button>
+          </div>
         </form>
       </section>
     </>

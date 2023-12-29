@@ -1,7 +1,17 @@
 import { useState } from "react";
-import {toast} from 'react-toastify'
+import { toast } from "react-toastify";
 import { FaSignInAlt } from "react-icons/fa";
+import { useSelector, useDispatch } from "react-redux";
+import { login } from "../features/auth/authSlice";
+
 const Login = () => {
+
+  const dispatch = useDispatch();
+
+  const { user, isSuccess, isError, isLoading, message } = useSelector(
+    (state) => state.auth
+  );
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -17,9 +27,15 @@ const Login = () => {
   };
 
   const onSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-  }
+    const userData = {
+        email,
+        password
+    }
+
+    dispatch(login(userData))
+  };
 
   return (
     <>
@@ -55,7 +71,9 @@ const Login = () => {
               required
             />
           </div>
-          <div className="form-group"><button className="btn btn-block">Login</button></div>
+          <div className="form-group">
+            <button className="btn btn-block">Login</button>
+          </div>
         </form>
       </section>
     </>
